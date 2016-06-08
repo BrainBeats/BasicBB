@@ -190,7 +190,14 @@ public class MusicService extends Service implements
     public void playNext(){
         if (brainMode) {
             //TODO next in BrainMode
-            System.out.println("Piocher la bonne musique selon état");
+            System.out.println("Piocher une musique CALM");
+            int newSong = songPosn;
+            do {
+                newSong = rand.nextInt(songs.size());
+                System.out.println("RANDOMNESS");
+            } while ((songs.get(newSong).getState() != "CALM"));
+            songPosn = newSong;
+            System.out.println("SET NEW SONG");
         } else {
             if (shuffle) {
                 int newSong = songPosn;

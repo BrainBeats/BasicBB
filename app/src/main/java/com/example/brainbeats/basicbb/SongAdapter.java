@@ -53,7 +53,7 @@ public class SongAdapter extends BaseAdapter {
         //get title and artist strings
         songView.setText(currSong.getTitle());
         artistView.setText(currSong.getArtist());
-        stateView.setText("prout et pet");
+        stateView.setText(currSong.getState());
         //set position as tag
         songLay.setTag(position);
         return songLay;
