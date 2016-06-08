@@ -1,4 +1,4 @@
-package com.example.tdeframond.basicbb;
+package com.example.brainbeats.basicbb;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -15,12 +15,10 @@ import android.widget.ListView;
 import android.os.IBinder;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.MediaController.MediaPlayerControl;
-import com.example.tdeframond.basicbb.MusicService.MusicBinder;
 
 
 public class MainActivity extends AppCompatActivity implements MediaPlayerControl {

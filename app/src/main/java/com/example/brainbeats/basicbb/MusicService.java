@@ -1,4 +1,4 @@
-package com.example.tdeframond.basicbb;
+package com.example.brainbeats.basicbb;
 
 
 import android.app.Service;
@@ -188,16 +188,20 @@ public class MusicService extends Service implements
     }
 
     public void playNext(){
-        if(shuffle){
-            int newSong = songPosn;
-            while(newSong==songPosn){
-                newSong=rand.nextInt(songs.size());
+        if (brainMode) {
+            //TODO next in BrainMode
+            System.out.println("Piocher la bonne musique selon état");
+        } else {
+            if (shuffle) {
+                int newSong = songPosn;
+                while (newSong == songPosn) {
+                    newSong = rand.nextInt(songs.size());
+                }
+                songPosn = newSong;
+            } else {
+                songPosn++;
+                if (songPosn >= songs.size()) songPosn = 0;
             }
-            songPosn=newSong;
-        }
-        else{
-            songPosn++;
-            if(songPosn >= songs.size()) songPosn=0;
         }
         playSong();
     }
