@@ -35,7 +35,18 @@
             android:label="Sample FFT">
         </activity>
         <service android:name="com.example.brainbeats.basicbb.MusicService"/>
-    </application>
 
+        <activity android:name=".data.DeleteTagsActivity">
+            <intent-filter>
+                <action android:name="com.example.brainbeats.basicbb.DELETE_TAGS_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:authorities="com.example.brainbeats.basicbb"
+            android:name=".data.TagProvider" />
+
+    </application>
 
 </manifest>
