@@ -1,4 +1,4 @@
-package com.example.tdeframond.basicbb;
+package com.example.brainbeats.basicbb;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -6,6 +6,8 @@ import android.os.Bundle;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Random;
+
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
@@ -15,12 +17,12 @@ import android.widget.ListView;
 import android.os.IBinder;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.ServiceConnection;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.MediaController.MediaPlayerControl;
-import com.example.tdeframond.basicbb.MusicService.MusicBinder;
+
+import com.example.brainbeats.basicbb.data.Tagger;
 
 
 public class MainActivity extends AppCompatActivity implements MediaPlayerControl {
@@ -32,6 +34,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private boolean musicBound=false;
     private MusicController controller;
     private boolean paused=false, playbackPaused=false;
+    private Tagger tagger;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
         songView = (ListView)findViewById(R.id.song_list);
         songList = new ArrayList<Song>();
+        tagger = new Tagger(this);
 
         //Récupère les chansons
         getSongList();
@@ -118,12 +123,16 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 long thisId = musicCursor.getLong(idColumn);
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
-                songList.add(new Song(thisId, thisTitle, thisArtist, "prout"));
+                songList.add(new Song(thisId, thisTitle, thisArtist, getTag(thisId)));
             }
             while (musicCursor.moveToNext());
         }
+    }
 
-
+    private String getTag(long thisId) {
+        final String tagBySongID = tagger.getTagBySongID(thisId);
+        System.out.println(tagBySongID);
+        return tagBySongID;
     }
 
     @Override

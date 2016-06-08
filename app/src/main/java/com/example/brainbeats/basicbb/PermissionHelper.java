@@ -1,4 +1,4 @@
-package com.example.tdeframond.basicbb;
+package com.example.brainbeats.basicbb;
 
 import android.Manifest;
 import android.app.Activity;

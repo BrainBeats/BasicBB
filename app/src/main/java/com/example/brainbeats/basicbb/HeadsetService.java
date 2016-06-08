@@ -1,4 +1,4 @@
-package com.example.tdeframond.basicbb;
+package com.example.brainbeats.basicbb;
 
 /**
  * Created by tdeframond on 31/05/16.
@@ -8,8 +8,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-
-import com.example.tdeframond.basicbb.R;
 
 import android.os.Bundle;
 import android.os.Environment;

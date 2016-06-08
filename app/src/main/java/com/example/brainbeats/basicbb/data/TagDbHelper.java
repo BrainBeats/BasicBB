@@ -1,4 +1,4 @@
-package com.example.tdeframond.basicbb.data;
+package com.example.brainbeats.basicbb.data;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

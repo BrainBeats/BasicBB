@@ -1,4 +1,4 @@
-package com.example.tdeframond.basicbb.data;
+package com.example.brainbeats.basicbb.data;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -42,7 +42,7 @@ public class Tagger {
         return null;
     }
 
-    public long addTagToSong(int songID, String tag) {
+    public long addTagToSong(long songID, String tag) {
         final Cursor query = contentResolver.query(tagUri, null, "name = ?", new String[]{tag}, null);
         long tagID = 0;
 
@@ -61,7 +61,7 @@ public class Tagger {
         return tagID;
     }
 
-    public String getTagBySongID(int songID) {
+    public String getTagBySongID(long songID) {
         final Cursor songTagQuery = contentResolver.query(
                 songTagUri, null,
                 TagContract.SongTagEntry.TABLE_NAME +"."+

@@ -1,4 +1,4 @@
-package com.example.tdeframond.basicbb.data;
+package com.example.brainbeats.basicbb.data;
 
 import android.annotation.TargetApi;
 import android.content.ContentProvider;

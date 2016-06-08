@@ -1,4 +1,4 @@
-package com.example.tdeframond.basicbb.data;
+package com.example.brainbeats.basicbb.data;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -7,7 +7,7 @@ import android.provider.BaseColumns;
 
 public class TagContract {
 
-    public static final String CONTENT_AUTHORITY = "com.pi.android.brainbeats";
+    public static final String CONTENT_AUTHORITY = "com.example.brainbeats.basicbb";
 
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 

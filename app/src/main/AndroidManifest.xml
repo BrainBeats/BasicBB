@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.tdeframond.basicbb">
+    package="com.example.brainbeats.basicbb">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -20,7 +20,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.example.brainbeats.basicbb.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" >
@@ -31,21 +31,21 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".HeadsetService"
+            android:name="com.example.brainbeats.basicbb.HeadsetService"
             android:label="Sample FFT">
         </activity>
-        <service android:name="com.example.tdeframond.basicbb.MusicService"/>
+        <service android:name="com.example.brainbeats.basicbb.MusicService"/>
 
         <activity android:name=".data.DeleteTagsActivity">
             <intent-filter>
-                <action android:name="com.example.tdeframond.basicbb.DELETE_TAGS_ACTIVITY" />
+                <action android:name="com.example.brainbeats.basicbb.DELETE_TAGS_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
 
         <provider
-            android:authorities="com.example.tdeframond.basicbb"
-            android:name="com.example.tdeframond.basicbb.data.TagProvider" />
+            android:authorities="com.example.brainbeats.basicbb"
+            android:name=".data.TagProvider" />
 
     </application>
 
