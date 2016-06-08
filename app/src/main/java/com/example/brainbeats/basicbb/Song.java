@@ -1,8 +1,5 @@
 package com.example.brainbeats.basicbb;
 
-/**
- * Created by tdeframond on 19/05/16.
- */
 public class Song {
 
     private long id;
@@ -22,4 +19,19 @@ public class Song {
     public String getArtist(){return artist;}
     public String getState(){return state;}
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
 }
