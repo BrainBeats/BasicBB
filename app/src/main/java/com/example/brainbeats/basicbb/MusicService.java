@@ -12,9 +12,13 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.PowerManager;
 import android.util.Log;
+
+import java.util.List;
 import java.util.Random;
 import android.app.Notification;
 import android.app.PendingIntent;
+
+import com.example.brainbeats.basicbb.data.Tagger;
 
 
 /**
@@ -32,6 +36,8 @@ public class MusicService extends Service implements
     private ArrayList<Song> songs;
     //current position
     private int songPosn;
+
+    private Tagger monTagger;
 
     private boolean shuffle=false;
     private boolean brainMode=false;
@@ -188,14 +194,17 @@ public class MusicService extends Service implements
     }
 
     public void playNext(){
+
         if (brainMode) {
             //TODO next in BrainMode
+            // List<Song> filteredList = new ArrayList<Song>();
             System.out.println("Piocher une musique CALM");
             int newSong = songPosn;
+            long [] idWithThisTag  = monTagger.getAllMusicByTag(getString(R.string.state_calm));
             do {
                 newSong = rand.nextInt(songs.size());
                 System.out.println("RANDOMNESS");
-            } while ((songs.get(newSong).getState() != "CALM"));
+            } while ((songs.get(newSong).getState() != getString(R.string.state_calm)));
             songPosn = newSong;
             System.out.println("SET NEW SONG");
         } else {

@@ -31,12 +31,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/exitedButton"
-            android:text="Exited" />
+            android:text="@string/state_excited" />
         <RadioButton
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/calmButton"
-            android:text="Calm" />
+            android:text="@string/state_calm" />
     </RadioGroup>
 
 </LinearLayout>

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Brain Beats Player</string>
+    <string name="state_excited">Excited</string>
+    <string name="state_calm">Calm</string>
 </resources>
