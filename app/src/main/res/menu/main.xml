@@ -21,7 +21,7 @@
 
     <item
         android:id="@+id/brain_mode"
-        android:icon="@drawable/ic_bb_on_36dp"
+        android:icon="@drawable/ic_bb_off_36dp"
         android:orderInCategory="2"
         basicbb:showAsAction="ifRoom"
         android:title="Brain Mode"/>
