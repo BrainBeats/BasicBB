@@ -36,7 +36,16 @@
         </activity>
         <service android:name="com.example.brainbeats.basicbb.MusicService"/>
 
-        <activity android:name=".data.DeleteTagsActivity">
+        <activity
+            android:name="com.example.brainbeats.basicbb.settings.PreferenceWithHeaders"
+            android:label="@string/settings"
+            android:parentActivityName="com.example.brainbeats.basicbb.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.brainbeats.basicbb.MainActivity"/>
+        </activity>
+
+        <activity android:name="com.example.brainbeats.basicbb.data.DeleteTagsActivity">
             <intent-filter>
                 <action android:name="com.example.brainbeats.basicbb.DELETE_TAGS_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />

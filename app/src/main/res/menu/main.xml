@@ -26,4 +26,10 @@
         basicbb:showAsAction="ifRoom"
         android:title="Brain Mode"/>
 
+    <item
+        android:id="@+id/settings"
+        android:icon="@android:drawable/ic_menu_preferences"
+        basicbb:showAsAction="never"
+        android:title="@string/settings"/>
+
 </menu>
