@@ -13,17 +13,9 @@ import android.os.Binder;
 import android.os.PowerManager;
 import android.util.Log;
 
-import java.util.List;
 import java.util.Random;
 import android.app.Notification;
 import android.app.PendingIntent;
-
-import com.example.brainbeats.basicbb.data.Tagger;
-
-
-/**
- * Created by tdeframond on 07/06/16.
- */
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -36,9 +28,6 @@ public class MusicService extends Service implements
     private ArrayList<Song> songs;
     //current position
     private int songPosn;
-
-    private Tagger monTagger;
-
     private boolean shuffle=false;
     private boolean brainMode=false;
     private Random rand;
@@ -56,6 +45,7 @@ public class MusicService extends Service implements
         //initialize position
         songPosn=0;
         //create player
+
         player = new MediaPlayer();
 
         rand=new Random();
@@ -87,6 +77,7 @@ public class MusicService extends Service implements
 
     public void playSong(){
         player.reset();
+
         //get song
         Song playSong = songs.get(songPosn);
         songTitle=playSong.getTitle();

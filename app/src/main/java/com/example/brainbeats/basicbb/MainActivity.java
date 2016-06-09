@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private MusicController controller;
     private boolean paused=false, playbackPaused=false;
     private Tagger tagger;
-
+    private View currentPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         });
 
         setController();
-
 
         //Récupérer le tag de position qui lancera la bonne musique au toucher
         SongAdapter songAdt = new SongAdapter(this, songList);
@@ -97,6 +96,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     };
 
     public void songPicked(View view){
+        if (currentPosition != null) {
+            currentPosition.setActivated(false);
+        }
+        currentPosition = view;
+        currentPosition.setActivated(true);
+
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         musicSrv.playSong();
         if(playbackPaused){
