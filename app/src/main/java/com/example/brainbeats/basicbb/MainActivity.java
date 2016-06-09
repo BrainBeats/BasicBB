@@ -121,10 +121,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             int artistColumn = musicCursor.getColumnIndex
                     (android.provider.MediaStore.Audio.Media.ARTIST);
             //add songs to list
+            int i=0;
             do {
                 long thisId = musicCursor.getLong(idColumn);
                 String thisTitle = musicCursor.getString(titleColumn);
                 String thisArtist = musicCursor.getString(artistColumn);
+
                 songList.add(new Song(thisId, thisTitle, thisArtist, getTag(thisId)));
             }
             while (musicCursor.moveToNext());

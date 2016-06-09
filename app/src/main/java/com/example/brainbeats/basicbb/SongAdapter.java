@@ -58,6 +58,8 @@ public class SongAdapter extends BaseAdapter {
         //get title and artist strings
         songView.setText(currSong.getTitle());
         artistView.setText(currSong.getArtist());
+
+
         exited = (RadioButton) songLay.findViewById(R.id.exitedButton);
         exited.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,6 +84,7 @@ public class SongAdapter extends BaseAdapter {
         } else if (currSong.getState().equals(calm.getText())) {
             radioGroup.check(calm.getId());
         }
+
         //set position as tag
         songLay.setTag(position);
         return songLay;
