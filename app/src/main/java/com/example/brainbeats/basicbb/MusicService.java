@@ -191,9 +191,15 @@ public class MusicService extends Service implements
             String actualState = getString(R.string.state_calm); // for the moment. Then, will get it from the headset
             System.out.println("Looking for a " + actualState+" music :)");
             ArrayList <Integer> arrayWithTheGoodState = stateFilter(songs, actualState);
-            if (arrayWithTheGoodState.size() < 1) {
+            if (arrayWithTheGoodState.size() > 0) {
                 songPosn = arrayWithTheGoodState.get(rand.nextInt(arrayWithTheGoodState.size()));
                 System.out.println("New music set");
+            } else {
+                int newSong = songPosn;
+                while (newSong == songPosn) {
+                    newSong = rand.nextInt(songs.size());
+                }
+                songPosn = newSong;
             }
         } else {
             if (shuffle) {
@@ -224,10 +230,8 @@ public class MusicService extends Service implements
     public void setBrainMode(){
         if(brainMode) {
             brainMode=false;
-            Log.e("BRAINBEATS MODE","OFF");
         } else {
             brainMode = true;
-            Log.e("BRAINBEATS MODE", "ON");
         }
     }
 

@@ -13,6 +13,7 @@ import java.util.Random;
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.widget.ListView;
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private Intent playIntent;
     private boolean musicBound=false;
     private MusicController controller;
-    private boolean paused=false, playbackPaused=false;
+    private boolean paused=false, playbackPaused=false, brainMode=false;
     private Tagger tagger;
     private View currentPosition;
 
@@ -150,10 +151,19 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         switch (item.getItemId()) {
             case R.id.action_shuffle:
                 musicSrv.setShuffle();
-                System.out.println("bonjour les grosse tepus");
                 break;
             case R.id.brain_mode:
-                musicSrv.setBrainMode();
+                if(brainMode) {
+                    brainMode=false;
+                    musicSrv.setBrainMode();
+                    item.setIcon(getResources().getDrawable(R.drawable.ic_bb_off_36dp));
+                    Log.e("BRAINBEATS MODE","OFF");
+                } else {
+                    brainMode = true;
+                    Log.e("BRAINBEATS MODE", "ON");
+                    musicSrv.setBrainMode();
+                    item.setIcon(getResources().getDrawable(R.drawable.ic_bb_on_36dp));
+                }
                 break;
             case R.id.headset:
                 Intent intent = new Intent(MainActivity.this, HeadsetService.class);
