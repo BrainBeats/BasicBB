@@ -197,16 +197,13 @@ public class MusicService extends Service implements
 
         if (brainMode) {
             //TODO next in BrainMode
-            // List<Song> filteredList = new ArrayList<Song>();
-            System.out.println("Piocher une musique CALM");
-            int newSong = songPosn;
-            long [] idWithThisTag  = monTagger.getAllMusicByTag(getString(R.string.state_calm));
-            do {
-                newSong = rand.nextInt(songs.size());
-                System.out.println("RANDOMNESS");
-            } while ((songs.get(newSong).getState() != getString(R.string.state_calm)));
-            songPosn = newSong;
-            System.out.println("SET NEW SONG");
+            String actualState = getString(R.string.state_calm); // for the moment. Then, will get it from the headset
+            System.out.println("Looking for a " + actualState+" music :)");
+            ArrayList <Integer> arrayWithTheGoodState = stateFilter(songs, actualState);
+            if (arrayWithTheGoodState.size() < 1) {
+                songPosn = arrayWithTheGoodState.get(rand.nextInt(arrayWithTheGoodState.size()));
+                System.out.println("New music set");
+            }
         } else {
             if (shuffle) {
                 int newSong = songPosn;
@@ -241,6 +238,16 @@ public class MusicService extends Service implements
             brainMode = true;
             Log.e("BRAINBEATS MODE", "ON");
         }
+    }
+
+    private ArrayList <Integer> stateFilter (ArrayList <Song> songs, String state) {
+        ArrayList <Integer> myArray= new ArrayList<Integer>();
+        for (int i=0; i<songs.size();i++) {
+            String state1 = songs.get(i).getState();
+            if (state1.equals(state))
+                myArray.add(i);
+        }
+        return myArray;
     }
 
 }
