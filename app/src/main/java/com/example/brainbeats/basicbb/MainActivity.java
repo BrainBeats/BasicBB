@@ -3,6 +3,8 @@ package com.example.brainbeats.basicbb;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -23,9 +25,10 @@ import android.view.View;
 import android.widget.MediaController.MediaPlayerControl;
 
 import com.example.brainbeats.basicbb.data.Tagger;
+import com.example.brainbeats.basicbb.settings.PreferenceWithHeaders;
 
 
-public class MainActivity extends AppCompatActivity implements MediaPlayerControl {
+public class MainActivity extends AppCompatActivity implements MediaPlayerControl, Serializable{
 
     private ArrayList<Song> songList;
     private ListView songView;
@@ -93,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     };
 
-
     public void songPicked(View view){
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         musicSrv.playSong();
@@ -156,6 +158,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 stopService(playIntent);
                 musicSrv=null;
                 System.exit(0);
+                break;
+            case R.id.settings:
+                final Intent settingsIntent = new Intent(this, PreferenceWithHeaders.class);
+                startActivity(settingsIntent);
                 break;
         }
         return super.onOptionsItemSelected(item);
