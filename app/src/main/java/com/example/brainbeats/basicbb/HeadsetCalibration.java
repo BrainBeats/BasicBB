@@ -4,35 +4,24 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.media.MediaPlayer;
 import android.os.SystemClock;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import android.app.Activity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Chronometer;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.emotiv.insight.IEmoStateDLL;
-//import com.google.android.gms.appindexing.Action;
-//import com.google.android.gms.appindexing.AppIndex;
-//import com.google.android.gms.common.api.GoogleApiClient;
-
 import com.emotiv.insight.IEdk;
-import com.emotiv.insight.IEmoStateDLL;
-import com.emotiv.insight.IEdk.*;
 import com.emotiv.insight.IEdk.IEE_DataChannel_t;
 import com.emotiv.insight.IEdk.IEE_Event_t;
 import com.emotiv.insight.IEdkErrorCode;
@@ -44,8 +33,13 @@ import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.*;
+import weka.classifiers.Classifier;
+import weka.classifiers.trees.J48;
+import weka.core.Instances;
+import weka.core.converters.ConverterUtils.DataSource;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+
 
 public class HeadsetCalibration extends Activity {
     private MediaPlayer mpNeutre;
@@ -109,20 +103,6 @@ public class HeadsetCalibration extends Activity {
                         handler.sendEmptyMessage(1);
                         if (isEnablGetData && isEnableWriteFile) handler.sendEmptyMessage(2);
                         array = IEmoStateDLL.IS_GetContactQualityFromAllChannels();
-                        //    Log.e("total", String.valueOf(IEmoStateDLL.IS_GetContactQualityFromAllChannels()));
-                        Log.e("etat AF3 ", String.valueOf(array[3]));
-                        //                    Log.e("etat T7", String.valueOf(array[7]));
-                        //                  Log.e("etat Pz ", String.valueOf(array[9]));
-                        //                Log.e("etat T8 ", String.valueOf(array[12]));
-                        //              Log.e("etat AF4 ", String.valueOf(array[16]));
-                        //            //Log.e("etat 7 ", String.valueOf(array.length));
-                        //          Log.e("Mpnumber ", String.valueOf(MpNumber));
-                        //           if(MpNumber != 0 && MpNumber<=4) {
-                        //             Log.e("filename ", String.valueOf(filenames[MpNumber - 1]));
-                        Log.e("Counter :", String.valueOf(IEdk.IEE_GetAverageBandPowers(Channel_list[Channel_list.length-1])));
-
-                        Log.e("channel :", String.valueOf(Channel_list[Channel_list.length-1]));
-
                         Thread.sleep(200);
                     } catch (Exception ex) {
                         ex.printStackTrace();
@@ -140,7 +120,7 @@ public class HeadsetCalibration extends Activity {
                 mpHard = MediaPlayer.create(arg0.getContext(), R.raw.hard);
                 mpCalm = MediaPlayer.create(arg0.getContext(), R.raw.calm);
 
-                Log.e("FFTSample", "Start Write File");
+                Log.e("Brainbeats", "Start Write File");
                 setDataFile();
                 isEnableWriteFile = true;
                 chronometer.setBase(SystemClock.elapsedRealtime());
@@ -160,7 +140,7 @@ public class HeadsetCalibration extends Activity {
                             }
                         });
                     }
-                }, 0, 30000);
+                }, 0, 2000);
             }
         });
 
@@ -169,11 +149,52 @@ public class HeadsetCalibration extends Activity {
             @Override
             public void onClick(View arg0) {
                 // TODO Auto-generated method stub
-                Log.e("FFTSample", "Stop Write File");
+                Log.e("BreainBeats", "Stop Write File");
                 StopWriteFile();
+                try {
+                    writeModel();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 isEnableWriteFile = false;
             }
         });
+    }
+
+    private void writeModel() throws Exception {
+        String location = absolutePath() + getString(R.string.path) + "bandpowerValue_Hard.csv";
+        System.out.println(location);
+        System.out.println(new File(location).exists());
+        DataSource source_hard = new DataSource(location);
+        Instances train_hard = source_hard.getDataSet();
+        DataSource source_calm = new DataSource(absolutePath()  + getString(R.string.path) + "bandpowerValue_Calm.csv");
+        Instances train_calm = source_calm.getDataSet();
+
+// Set class index
+        train_hard.setClassIndex(0);
+        train_calm.setClassIndex(0);
+// Build Classifier
+        Classifier cModel_hard = (Classifier)new J48();
+        cModel_hard.buildClassifier(train_hard);
+        Classifier cModel_calm = (Classifier)new J48();
+        cModel_calm.buildClassifier(train_calm);
+
+
+// Serialize model hard
+        ObjectOutputStream oos_hard = new ObjectOutputStream(new FileOutputStream(absolutePath()  + getString(R.string.path) + "hard.model"));
+        oos_hard.writeObject(cModel_hard);
+        oos_hard.flush();
+        oos_hard.close();
+        System.out.println("\nModele hard serialise\n======\n");
+
+// Serialize calm
+        ObjectOutputStream oos_calm = new ObjectOutputStream(new FileOutputStream(absolutePath()  + getString(R.string.path) + "calm.model"));
+        oos_calm.writeObject(cModel_calm);
+        oos_calm.flush();
+        oos_calm.close();
+        System.out.println("\nModele calm serialise\n======\n");
+
+
     }
 
     private void PlayMv() {
@@ -197,39 +218,44 @@ public class HeadsetCalibration extends Activity {
 
     private long showElapsedTime() {
         long elapsedMillis = SystemClock.elapsedRealtime() - chronometer.getBase();
-        Toast.makeText(HeadsetCalibration.this, "Elapsed milliseconds: " + elapsedMillis,
-                Toast.LENGTH_SHORT).show();
+        /*Toast.makeText(HeadsetCalibration.this, "Elapsed milliseconds: " + elapsedMillis,
+                Toast.LENGTH_SHORT).show(); */
         return elapsedMillis;
     }
 
     private void instantiateFileNames(){
-        for (int i=0; i<MpQuantity-1; i++){
-            if (i%2 == 0 ){
-                filenames[i] = "_Neutre";
-            }
-            filenames[1]="_Calm";
-            filenames[3]="_Hard";
-        }
+        filenames[2] = "_Neutre";
+        filenames[0] = "_Neutre";
+        filenames[1]="_Calm";
+        filenames[3]="_Hard";
     }
 
     private void setDataFile() {
         try {
             String eeg_header = "Channel , Theta ,Alpha ,Low beta ,High beta , Gamma ";
-            File root = Environment.getExternalStorageDirectory();
-            String file_path = root.getAbsolutePath() + "/FFTSample/";
+            String absolutePath = absolutePath();
+            String file_path = absolutePath + getString(R.string.path);
             File folder = new File(file_path);
             if (!folder.exists()) {
                 Log.e("camarche po", "on va creer");
                 folder.mkdirs();
             }
             for (int i = 0; i < filenames.length; i++) {
-                motion_writer[i] = new BufferedWriter(new FileWriter(file_path + "bandpowerValue"+ filenames[i]+".csv"));
+                String filename = filenames[i];
+                motion_writer[i] = new BufferedWriter(new FileWriter(file_path + "bandpowerValue"+ filename +".csv"));
+                System.out.println(file_path + "bandpowerValue"+ filename +".csv");
                 motion_writer[i].write(eeg_header);
                 motion_writer[i].newLine();
             }
         }catch(Exception e){
             Log.e("", "Exception" + e.getMessage());
         }
+    }
+
+    @NonNull
+    private String absolutePath() {
+        File root = Environment.getExternalStorageDirectory();
+        return root.getAbsolutePath();
     }
 
     Handler handler = new Handler() {
@@ -278,7 +304,7 @@ public class HeadsetCalibration extends Activity {
                                     for (int j = 0; j < data.length; j++)
                                         addData(data[j]);
                                     if(MpNumber != 0 && MpNumber<=4) {
-                                        Log.e("writing in", String.valueOf(filenames[MpNumber - 1]));
+                                        //Log.e("writing in", String.valueOf(filenames[MpNumber - 1]));
                                     }
                                     motion_writer[MpNumber-1].newLine();}
                             } catch (IOException e) {
