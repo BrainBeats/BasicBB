@@ -11,18 +11,22 @@
     <item
         android:id="@+id/action_end"
         android:icon="@drawable/end"
-        android:orderInCategory="4"
+        android:orderInCategory="5"
         android:title="End"/>
 
     <item
         android:id="@+id/headset"
-        android:orderInCategory="3"
+        android:orderInCategory="4"
         android:title="Sample FFT"/>
+
+    <item
+        android:id="@+id/calibration"
+        android:orderInCategory="3"
+        android:title="Headset Calibration"/>
 
     <item
         android:id="@+id/brain_mode"
         android:icon="@drawable/ic_bb_off_36dp"
-        android:orderInCategory="2"
         basicbb:showAsAction="ifRoom"
         android:title="Brain Mode"/>
 
@@ -30,6 +34,7 @@
         android:id="@+id/settings"
         android:icon="@android:drawable/ic_menu_preferences"
         basicbb:showAsAction="never"
+        android:orderInCategory="2"
         android:title="@string/settings"/>
 
 </menu>

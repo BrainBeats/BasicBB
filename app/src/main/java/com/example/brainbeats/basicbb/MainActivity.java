@@ -161,8 +161,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                 }
                 break;
             case R.id.headset:
-                Intent intent = new Intent(MainActivity.this, HeadsetService.class);
-                startActivity(intent);
+                Intent intent_fft = new Intent(MainActivity.this, HeadsetService.class);
+                startActivity(intent_fft);
+                break;
+            case R.id.calibration:
+                Intent intent_calibration = new Intent(MainActivity.this, HeadsetCalibration.class);
+                startActivity(intent_calibration);
                 break;
             case R.id.action_end:
                 stopService(playIntent);

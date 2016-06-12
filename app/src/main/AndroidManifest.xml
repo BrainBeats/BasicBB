@@ -34,6 +34,10 @@
             android:name="com.example.brainbeats.basicbb.HeadsetService"
             android:label="Sample FFT">
         </activity>
+        <activity
+            android:name="com.example.brainbeats.basicbb.HeadsetCalibration"
+            android:label="Headset Calibration">
+        </activity>
         <service android:name="com.example.brainbeats.basicbb.MusicService"/>
 
         <activity
