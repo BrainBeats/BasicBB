@@ -1,8 +1,5 @@
 package com.example.brainbeats.basicbb;
 
-/**
- * Created by tdeframond on 09/06/16.
- */
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.media.MediaPlayer;
@@ -50,9 +47,7 @@ import java.util.TimerTask;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.*;
 
-
 public class HeadsetCalibration extends Activity {
-
     private MediaPlayer mpNeutre;
     private MediaPlayer mpHard;
     private MediaPlayer mpCalm;
@@ -67,8 +62,8 @@ public class HeadsetCalibration extends Activity {
     private boolean lock = false;
     Timer timer = new Timer();
 
-    int[] array;
-    int[] array2;
+    private int[] array;
+    private int[] array2;
 
     private String[] filenames = new String[MpQuantity];
     private BufferedWriter[] motion_writer = new BufferedWriter[MpQuantity];
@@ -82,21 +77,11 @@ public class HeadsetCalibration extends Activity {
     IEE_DataChannel_t[] Channel_list = {IEE_DataChannel_t.IED_AF3, IEE_DataChannel_t.IED_T7, IEE_DataChannel_t.IED_Pz,
             IEE_DataChannel_t.IED_T8, IEE_DataChannel_t.IED_AF4,IEE_DataChannel_t.IED_RAW_CQ,IEE_DataChannel_t.IED_COUNTER};
     String[] Name_Channel = {"AF3", "T7", "Pz", "T8", "AF4"};
-    //private GoogleApiClient client2;
-
-
-    //  IEmoStateDLL.IEE_EEG_ContactQuality_t[] contact_list = {IEmoStateDLL.IEE_EEG_ContactQuality_t.IEEG_CQ_NO_SIGNAL};
-
-    // int[] bob = IEmoStateDLL.IS_GetBatteryChargeLevel();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.calibration_layout);
-
-
 
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
@@ -107,7 +92,6 @@ public class HeadsetCalibration extends Activity {
                 startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
             }
         }
-
         instantiateFileNames();
 
         chronometer = (Chronometer) findViewById(R.id.chronometer);
@@ -124,7 +108,6 @@ public class HeadsetCalibration extends Activity {
                         handler.sendEmptyMessage(0);
                         handler.sendEmptyMessage(1);
                         if (isEnablGetData && isEnableWriteFile) handler.sendEmptyMessage(2);
-
                         array = IEmoStateDLL.IS_GetContactQualityFromAllChannels();
                         //    Log.e("total", String.valueOf(IEmoStateDLL.IS_GetContactQualityFromAllChannels()));
                         Log.e("etat AF3 ", String.valueOf(array[3]));
@@ -176,7 +159,6 @@ public class HeadsetCalibration extends Activity {
                                 changeMpNumber();
                             }
                         });
-
                     }
                 }, 0, 30000);
             }
@@ -192,27 +174,11 @@ public class HeadsetCalibration extends Activity {
                 isEnableWriteFile = false;
             }
         });
-
-        //client2 = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
-
-//       Stop_button.setOnClickListener(new OnClickListener() {
-//
-//            @Override
-    //           public void onClick(View arg0) {
-//
-//                showElapsedTime();
-    //           }
-    //       });
-
-    // ATTENTION: This was auto-generated to implement the App Indexing API.
-    // See https://g.co/AppIndexing/AndroidStudio for more information.
-
 
     private void PlayMv() {
         if (MpNumber % 2 == 0) {
             //mpNeutre.start();
-
         } else {
             switch (MpNumber) {
                 case 1:
@@ -222,16 +188,11 @@ public class HeadsetCalibration extends Activity {
                     mpHard.start();
                     break;
             }
-
         }
     }
 
     private void changeMpNumber() {
-
         MpNumber++;
-
-
-
     }
 
     private long showElapsedTime() {
@@ -269,21 +230,17 @@ public class HeadsetCalibration extends Activity {
         }catch(Exception e){
             Log.e("", "Exception" + e.getMessage());
         }
-
     }
 
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-
             View textView = findViewById(R.id.textView);
             View textView2 = findViewById(R.id.textView2);
 
             switch (msg.what) {
-
                 case 0:
                     int state = IEdk.IEE_EngineGetNextEvent();
-                    //Log.e("code kon a", String.valueOf(state));
                     if (state == IEdkErrorCode.EDK_OK.ToInt()) {
                         int eventType = IEdk.IEE_EmoEngineEventGetType();
                         userId = IEdk.IEE_EmoEngineEventGetUserId();
@@ -299,7 +256,6 @@ public class HeadsetCalibration extends Activity {
                             isEnablGetData = false;
                         }
                     }
-
                     break;
                 case 1:
                     int number = IEdk.IEE_GetInsightDeviceCount();
@@ -314,9 +270,6 @@ public class HeadsetCalibration extends Activity {
                     textView2.setVisibility(View.VISIBLE);
                     for (int i = 0; i < Channel_list.length-2; i++) {
                         double[] data = IEdk.IEE_GetAverageBandPowers(Channel_list[i]);
-                        // double[] counterdat = IEdk.IEE_GetAverageBandPowers(Channel_list[Channel_list.length-1]);
-                        // Log.e("Raw_CQ", String.valueOf(IEdk.IEE_GetAverageBandPowers(Channel_list[Channel_list.length-2])));
-                        // Log.e("Counter :", String.valueOf(IEdk.IEE_GetAverageBandPowers(Channel_list[Channel_list.length-1])));
 
                         if (data.length == 5) {
                             try {
@@ -324,9 +277,6 @@ public class HeadsetCalibration extends Activity {
                                     motion_writer[MpNumber-1].write(Name_Channel[i]);
                                     for (int j = 0; j < data.length; j++)
                                         addData(data[j]);
-                                    //  array2 = IEmoStateDLL.IS_GetContactQualityFromAllChannels();
-                                    //   int ele2 = IEmoStateDLL.IS_GetContactQuality(9);
-                                    //  Log.e("total2", String.valueOf(IEmoStateDLL.IS_GetContactQualityFromAllChannels()));
                                     if(MpNumber != 0 && MpNumber<=4) {
                                         Log.e("writing in", String.valueOf(filenames[MpNumber - 1]));
                                     }
@@ -336,7 +286,6 @@ public class HeadsetCalibration extends Activity {
                             }
                         }
                     }
-
                     break;
             }
 
@@ -353,16 +302,14 @@ public class HeadsetCalibration extends Activity {
                 chronometer.stop();
                 mpCalm.stop();
                 mpHard.stop();
-
             }
         } catch (Exception e) {
-            // TODO: handle exception
+            e.printStackTrace();
         }
     }
 
 
     public void addData(double data) {
-
         if (motion_writer == null) {
             return;
         }
@@ -372,55 +319,18 @@ public class HeadsetCalibration extends Activity {
         try {
             motion_writer[MpNumber-1].write(input);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
     }
 
-
-
-
-
-
-
     @Override
     public void onStart() {
         super.onStart();
-
-        /*/ ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        client2.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://com.example.brainbeats.basicbb/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client2, viewAction); */
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
-        /*/ ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Main Page", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse("http://host/path"),
-                // TODO: Make sure this auto-generated app URL is correct.
-                Uri.parse("android-app://com.example.brainbeats.basicbb/http/host/path")
-        );
-        AppIndex.AppIndexApi.end(client2, viewAction);
-        client2.disconnect();*/
     }
 }
