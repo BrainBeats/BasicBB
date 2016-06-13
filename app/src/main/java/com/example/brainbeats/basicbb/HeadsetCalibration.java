@@ -36,6 +36,8 @@ import java.util.TimerTask;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
+import weka.core.converters.ArffSaver;
+import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
@@ -162,7 +164,7 @@ public class HeadsetCalibration extends Activity {
     }
 
     private void writeModel() throws Exception {
-        String location = absolutePath() + getString(R.string.path) + "bandpowerValue_Hard.csv";
+       /* String location = absolutePath() + getString(R.string.path) + "bandpowerValue_Hard.csv";
         System.out.println(location);
         System.out.println(new File(location).exists());
         DataSource source_hard = new DataSource(location);
@@ -192,7 +194,18 @@ public class HeadsetCalibration extends Activity {
         oos_calm.writeObject(cModel_calm);
         oos_calm.flush();
         oos_calm.close();
-        System.out.println("\nModele calm serialise\n======\n");
+        System.out.println("\nModele calm serialise\n======\n"); */
+
+        // load CSV
+        CSVLoader loader = new CSVLoader();
+        loader.setSource(new File(absolutePath() + getString(R.string.path) + "bandpowerValue_Hard.csv"));
+        Instances data = loader.getDataSet();
+
+        // save ARFF
+        ArffSaver saver = new ArffSaver();
+        saver.setInstances(data);
+        saver.setFile(new File(absolutePath() + getString(R.string.path) + "bandpowerValue_Hard.arff"));
+        saver.writeBatch();
 
 
     }

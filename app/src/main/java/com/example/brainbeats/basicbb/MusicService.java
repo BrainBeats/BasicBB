@@ -17,6 +17,7 @@ import java.util.Random;
 import android.app.Notification;
 import android.app.PendingIntent;
 
+
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener {
@@ -49,7 +50,6 @@ public class MusicService extends Service implements
         player = new MediaPlayer();
 
         rand=new Random();
-
         initMusicPlayer();
     }
 
@@ -75,9 +75,9 @@ public class MusicService extends Service implements
         player.setOnErrorListener(this);
     }
 
+
     public void playSong(){
         player.reset();
-
         //get song
         Song playSong = songs.get(songPosn);
         songTitle=playSong.getTitle();
@@ -94,6 +94,7 @@ public class MusicService extends Service implements
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
         player.prepareAsync();
+
     }
 
     @Override
@@ -156,6 +157,10 @@ public class MusicService extends Service implements
 
     public int getPosn(){
         return player.getCurrentPosition();
+    }
+
+    public int getPosition(){
+        return songPosn;
     }
 
     public int getDur(){

@@ -5,17 +5,50 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:background="#ffffff"
-    tools:context=".MainActivity" >
+    android:background="#5b215e"
+    tools:context=".MainActivity"
+    android:weightSum="1">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="#5b215e">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/musicDisplay"
+            android:layout_marginRight="30dp"
+            android:text="---------"
+            android:textColor="#ffffff"
+            android:layout_marginLeft="14dp"
+            android:layout_gravity="bottom" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="---------"
+            android:id="@+id/stateDisplay"
+            android:layout_gravity="bottom|right"
+            android:textColor="#eed7ed" />
+
+    </LinearLayout>
 
     <ListView
         android:id="@+id/song_list"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="336dp"
         android:scrollIndicators="right"
         android:smoothScrollbar="true"
         android:background="#f8f8f8"
-        android:scrollingCache="true">
+        android:scrollingCache="true"
+        android:layout_gravity="bottom"
+        android:layout_weight="1.17">
     </ListView>
 
 </LinearLayout>

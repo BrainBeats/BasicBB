@@ -24,6 +24,7 @@ import android.content.ServiceConnection;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.MediaController.MediaPlayerControl;
+import android.widget.TextView;
 
 import com.example.brainbeats.basicbb.data.Tagger;
 import com.example.brainbeats.basicbb.settings.PreferenceWithHeaders;
@@ -40,6 +41,9 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private boolean paused=false, playbackPaused=false, brainMode=false;
     private Tagger tagger;
     private View currentPosition;
+    public TextView stateDisplay;
+    public TextView musicDisplay;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         });
 
         setController();
+        musicDisplay = (TextView) findViewById(R.id.musicDisplay);
+        stateDisplay= (TextView) findViewById(R.id.stateDisplay);
 
         //Récupérer le tag de position qui lancera la bonne musique au toucher
         SongAdapter songAdt = new SongAdapter(this, songList);
@@ -97,19 +103,20 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     };
 
     public void songPicked(View view){
-        if (currentPosition != null) {
-            currentPosition.setActivated(false);
-        }
-        currentPosition = view;
-        currentPosition.setActivated(true);
-
         musicSrv.setSong(Integer.parseInt(view.getTag().toString()));
         musicSrv.playSong();
-        if(playbackPaused){
+        if (playbackPaused) {
             setController();
             playbackPaused=false;
         }
         controller.show(0);
+        updateDisplay();
+    }
+
+    public void updateDisplay(/*String aState, String aSong*/) {
+        stateDisplay.setText(songList.get(musicSrv.getPosition()).getState());
+        musicDisplay.setText(songList.get(musicSrv.getPosition()).getTitle());
+        System.out.println("UPDATE");
     }
 
     public void getSongList() {
@@ -245,6 +252,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     @Override
     public void start() {
         musicSrv.go();
+        try {
+            Thread.sleep(500,0);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        updateDisplay();
     }
 
     @Override
@@ -312,6 +325,12 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             playbackPaused=false;
         }
         controller.show(0);
+        try {
+            Thread.sleep(500,0);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        updateDisplay();
     }
 
     //play previous
@@ -322,5 +341,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             playbackPaused=false;
         }
         controller.show(0);
+        try {
+            Thread.sleep(500,0);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        updateDisplay();
     }
 }
