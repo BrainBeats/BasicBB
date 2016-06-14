@@ -56,6 +56,14 @@ public class PermissionHelper {
                     new String[]{Manifest.permission.BLUETOOTH_ADMIN},
                     1);
         }
+        if (ContextCompat.checkSelfPermission(activity,
+                Manifest.permission.INTERNET)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(activity,
+                    new String[]{Manifest.permission.INTERNET},
+                    1);
+        }
     }
 
 

@@ -27,9 +27,14 @@ import com.emotiv.insight.IEdk.IEE_Event_t;
 import com.emotiv.insight.IEdkErrorCode;
 
 import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -69,6 +74,19 @@ public class HeadsetCalibration extends Activity {
 
     private BluetoothAdapter mBluetoothAdapter;
 
+    private HttpURLConnection connection = null;
+    private DataOutputStream outputStream = null;
+    private DataInputStream inputStream = null;
+    private String pathToOurFile = "/brainbeats/bandpowerValue_Hard.csv";
+    //private String urlServer = "http://brainbeats.cleverapps.io/models/hard";
+    private String urlServer = "http://localhost:8080/models/hard";
+    private String lineEnd = "\r\n";
+    private String twoHyphens = "--";
+    private String boundary =  "*****";
+
+    private int bytesRead, bytesAvailable, bufferSize;
+    private byte[] buffer;
+    private int maxBufferSize = 1*1024*1024;
 
     IEE_DataChannel_t[] Channel_list = {IEE_DataChannel_t.IED_AF3, IEE_DataChannel_t.IED_T7, IEE_DataChannel_t.IED_Pz,
             IEE_DataChannel_t.IED_T8, IEE_DataChannel_t.IED_AF4,IEE_DataChannel_t.IED_RAW_CQ,IEE_DataChannel_t.IED_COUNTER};
@@ -155,8 +173,10 @@ public class HeadsetCalibration extends Activity {
                 StopWriteFile();
                 try {
                     writeModel();
+                    System.out.println("let's start the FRED");
                 } catch (Exception e) {
                     e.printStackTrace();
+                    System.out.println("ERROR in bouton stop");
                 }
                 isEnableWriteFile = false;
             }
@@ -164,50 +184,66 @@ public class HeadsetCalibration extends Activity {
     }
 
     private void writeModel() throws Exception {
-       /* String location = absolutePath() + getString(R.string.path) + "bandpowerValue_Hard.csv";
-        System.out.println(location);
-        System.out.println(new File(location).exists());
-        DataSource source_hard = new DataSource(location);
-        Instances train_hard = source_hard.getDataSet();
-        DataSource source_calm = new DataSource(absolutePath()  + getString(R.string.path) + "bandpowerValue_Calm.csv");
-        Instances train_calm = source_calm.getDataSet();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //Code exécuté dans le nouveau thread
+                try
+                {
+                    FileInputStream fileInputStream = new FileInputStream(new File("/storage/emulated/0/brainbeats/bandpowerValue_Hard.csv"));
+                    System.out.println("Start connection with Brainbeats server");
+                    URL url = new URL(urlServer);
+                    connection = (HttpURLConnection) url.openConnection();
 
-// Set class index
-        train_hard.setClassIndex(0);
-        train_calm.setClassIndex(0);
-// Build Classifier
-        Classifier cModel_hard = (Classifier)new J48();
-        cModel_hard.buildClassifier(train_hard);
-        Classifier cModel_calm = (Classifier)new J48();
-        cModel_calm.buildClassifier(train_calm);
+                    // Allow Inputs &amp; Outputs.
+                    connection.setDoInput(true);
+                    connection.setDoOutput(true);
+                    connection.setUseCaches(false);
 
+                    // Set HTTP method to POST.
+                    connection.setRequestMethod("POST");
 
-// Serialize model hard
-        ObjectOutputStream oos_hard = new ObjectOutputStream(new FileOutputStream(absolutePath()  + getString(R.string.path) + "hard.model"));
-        oos_hard.writeObject(cModel_hard);
-        oos_hard.flush();
-        oos_hard.close();
-        System.out.println("\nModele hard serialise\n======\n");
+                    connection.setRequestProperty("Connection", "Keep-Alive");
+                    connection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
 
-// Serialize calm
-        ObjectOutputStream oos_calm = new ObjectOutputStream(new FileOutputStream(absolutePath()  + getString(R.string.path) + "calm.model"));
-        oos_calm.writeObject(cModel_calm);
-        oos_calm.flush();
-        oos_calm.close();
-        System.out.println("\nModele calm serialise\n======\n"); */
+                    outputStream = new DataOutputStream( connection.getOutputStream() );
+                    outputStream.writeBytes(twoHyphens + boundary + lineEnd);
+                    outputStream.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + pathToOurFile +"\"" + lineEnd);
+                    outputStream.writeBytes(lineEnd);
 
-        // load CSV
-        CSVLoader loader = new CSVLoader();
-        loader.setSource(new File(absolutePath() + getString(R.string.path) + "bandpowerValue_Hard.csv"));
-        Instances data = loader.getDataSet();
+                    bytesAvailable = fileInputStream.available();
+                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    buffer = new byte[bufferSize];
 
-        // save ARFF
-        ArffSaver saver = new ArffSaver();
-        saver.setInstances(data);
-        saver.setFile(new File(absolutePath() + getString(R.string.path) + "bandpowerValue_Hard.arff"));
-        saver.writeBatch();
+                    // Read file
+                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
 
+                    while (bytesRead > 0)
+                    {
+                        outputStream.write(buffer, 0, bufferSize);
+                        bytesAvailable = fileInputStream.available();
+                        bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                    }
 
+                    outputStream.writeBytes(lineEnd);
+                    outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                    // Responses from the server (code and message)
+                    int serverResponseCode = connection.getResponseCode();
+                    String serverResponseMessage = connection.getResponseMessage();
+
+                    fileInputStream.close();
+                    outputStream.flush();
+                    outputStream.close();
+                    System.out.println("Transfer finished AND server answer is : "+serverResponseCode+"  "+serverResponseMessage);
+                }
+                catch (Exception ex)
+                {
+                    System.out.println("ERROR MAGGLE");
+                }
+            }
+        }).start();
     }
 
     private void PlayMv() {
