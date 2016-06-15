@@ -7,12 +7,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.media.MediaPlayer;
+import android.os.Handler;
 import android.os.IBinder;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import android.content.ContentUris;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Message;
 import android.os.PowerManager;
 import android.util.Log;
 
@@ -22,12 +27,21 @@ import java.util.TimerTask;
 
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.widget.Toast;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 public class MusicService extends Service implements
         MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener {
-
 
     //media player
     private MediaPlayer player;
@@ -41,15 +55,12 @@ public class MusicService extends Service implements
 
     private String songTitle="";
     private static final int NOTIFY_ID=1;
-
     //inner binder class
     private final IBinder musicBind = new MusicBinder();
 
     private BrainmodeService BMSrv;
     private Intent recordIntent;
     Timer timer = new Timer();
-
-
 
     public void onCreate(){
         //create the service
@@ -100,12 +111,10 @@ public class MusicService extends Service implements
                 currSong);
         try{
             player.setDataSource(getApplicationContext(), trackUri);
-        }
-        catch(Exception e){
+        } catch(Exception e){
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
         player.prepareAsync();
-
     }
 
     @Override
@@ -127,7 +136,6 @@ public class MusicService extends Service implements
         if(player.getCurrentPosition()>0){
             mp.reset();
             playNext();
-
         }
     }
 
@@ -135,7 +143,6 @@ public class MusicService extends Service implements
     public void onDestroy() {
         stopForeground(true);
         stopService(recordIntent);
-
     }
 
     @Override
@@ -206,29 +213,36 @@ public class MusicService extends Service implements
 
     public void playNext(){
         if (brainMode) {
-            brainModeRecord();
-            Log.e("record done","");
-            //TODO next in BrainMode
-            String actualState = getString(R.string.state_calm); // for the moment. Then, will get it from the headset
-            System.out.println("Looking for a " + actualState+" music :)");
-            ArrayList <Integer> arrayWithTheGoodState = stateFilter(songs, actualState);
-            if (arrayWithTheGoodState.size() > 0) {
-                songPosn = arrayWithTheGoodState.get(rand.nextInt(arrayWithTheGoodState.size()));
-                System.out.println("New music set");
-            } else {
-                int newSong = songPosn;
-                while (newSong == songPosn) {
-                    newSong = rand.nextInt(songs.size());
-                }
-                songPosn = newSong;
-            }
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    playSong();
-                }
-            }, 10000);
-
+           Toast.makeText(getApplicationContext(), "Brainbeating", Toast.LENGTH_SHORT).show();
+           brainModeRecord(new Handler.Callback() {
+               /**
+                * this executed after tag is found
+                * @param message contiens tag
+                */
+               @Override
+               public boolean handleMessage(Message message) {
+                   String actualState;
+                   if (message.arg1 == 1) {
+                       actualState = getString(R.string.state_calm);
+                   } else {
+                       actualState = getString(R.string.state_excited);
+                   }
+                   Log.e("record done","");
+                   System.out.println("Looking for a " + actualState+" music :)");
+                   ArrayList <Integer> arrayWithTheGoodState = stateFilter(songs, actualState);
+                   if (arrayWithTheGoodState.size() > 0) {
+                       songPosn = arrayWithTheGoodState.get(rand.nextInt(arrayWithTheGoodState.size()));
+                       System.out.println("New music set");
+                   } else {
+                       int newSong = songPosn;
+                       while (newSong == songPosn) {
+                           newSong = rand.nextInt(songs.size());
+                       }
+                       songPosn = newSong;
+                   }
+                   return false;
+               }
+           });
         } else {
             if (shuffle) {
                 int newSong = songPosn;
@@ -282,7 +296,6 @@ public class MusicService extends Service implements
             BrainmodeService.BrainmodeBinder binder = (BrainmodeService.BrainmodeBinder)service;
             //get service
             BMSrv = binder.getService();
-
         }
 
         @Override
@@ -292,12 +305,35 @@ public class MusicService extends Service implements
     };
 
 
-    private void brainModeRecord() {
+    private void brainModeRecord(final Handler.Callback callback) {
         BMSrv.startWrite();
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 BMSrv.stopWrite();
+                System.out.println("SEND FILE TO SERVER");
+                String filepath = BMSrv.getFilePath() + BMSrv.FILENAME;
+                final String BASE_URL = "http://brainbeats.cleverapps.io/";
+                final OkHttpClient client = new OkHttpClient();
+                final File hardFile = new File(filepath);
+                final Request testrequest = createUploadfileRequest(hardFile, BASE_URL + "models/testmodel");
+                client.newCall(testrequest).enqueue(new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
+                    }
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        String tag = response.body().string();
+                        Message message = new Message();
+                        if (tag.equals("calm")) {
+                            message.arg1 = 1;
+                        } else {
+                            message.arg1 = 2;
+                        }
+                        callback.handleMessage(message);
+                    }
+                });
             }
         }, 10000);
     }
@@ -312,4 +348,15 @@ public class MusicService extends Service implements
         return myArray;
     }
 
+    private Request createUploadfileRequest(File file, String url) {
+        RequestBody body = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", file.getName(),
+                        RequestBody.create(MediaType.parse("text/csv"), file))
+                .build();
+        return new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+    }
 }
