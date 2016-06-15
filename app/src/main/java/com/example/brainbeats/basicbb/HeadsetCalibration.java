@@ -143,7 +143,7 @@ public class HeadsetCalibration extends Activity {
                             }
                         });
                     }
-                }, 0, 2000);
+                }, 0, 10000);
             }
         });
 

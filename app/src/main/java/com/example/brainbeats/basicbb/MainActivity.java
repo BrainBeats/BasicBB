@@ -125,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         stateDisplay.setText(songList.get(musicSrv.getPosition()).getState());
         musicDisplay.setText(songList.get(musicSrv.getPosition()).getTitle());
         artistDisplay.setText(songList.get(musicSrv.getPosition()).getArtist());
-        System.out.println("display UPDATED");
     }
 
     public void getSongList() {

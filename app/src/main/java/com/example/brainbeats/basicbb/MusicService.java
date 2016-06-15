@@ -213,7 +213,7 @@ public class MusicService extends Service implements
 
     public void playNext(){
         if (brainMode) {
-           Toast.makeText(getApplicationContext(), "Brainbeating", Toast.LENGTH_SHORT).show();
+           pausePlayer();
            brainModeRecord(new Handler.Callback() {
                /**
                 * this executed after tag is found
@@ -227,7 +227,7 @@ public class MusicService extends Service implements
                    } else {
                        actualState = getString(R.string.state_excited);
                    }
-                   Log.e("record done","");
+                   Log.e("Emotion","found");
                    System.out.println("Looking for a " + actualState+" music :)");
                    ArrayList <Integer> arrayWithTheGoodState = stateFilter(songs, actualState);
                    if (arrayWithTheGoodState.size() > 0) {
@@ -240,7 +240,8 @@ public class MusicService extends Service implements
                        }
                        songPosn = newSong;
                    }
-                   return false;
+                   playSong();
+                   return true;
                }
            });
         } else {
@@ -256,6 +257,7 @@ public class MusicService extends Service implements
             }
             playSong();
         }
+
 
 
     }
@@ -288,7 +290,13 @@ public class MusicService extends Service implements
         }
     }
 
-    //connect to the BMservice
+   /* @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return super.onStartCommand(intent, flags, startId);
+        intent.getExtras()
+    }*/
+
+    //connect to the BMservice        playSong()
     private ServiceConnection BMConnection = new ServiceConnection(){
 
         @Override
