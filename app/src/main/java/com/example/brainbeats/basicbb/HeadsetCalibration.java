@@ -63,7 +63,6 @@ public class HeadsetCalibration extends Activity {
     Timer timer = new Timer();
 
     private int[] array;
-    private int[] array2;
 
     private String[] filenames = new String[MpQuantity];
     private BufferedWriter[] motion_writer = new BufferedWriter[MpQuantity];
@@ -72,18 +71,6 @@ public class HeadsetCalibration extends Activity {
     private static final int REQUEST_ENABLE_BT = 1;
 
     private BluetoothAdapter mBluetoothAdapter;
-
-    private HttpURLConnection connection = null;
-    private DataOutputStream outputStream = null;
-    private DataInputStream inputStream = null;
-    private String pathToOurFile = "/brainbeats/bandpowerValue_Hard.csv";
-    private String lineEnd = "\r\n";
-    private String twoHyphens = "--";
-    private String boundary =  "*****";
-
-    private int bytesRead, bytesAvailable, bufferSize;
-    private byte[] buffer;
-    private int maxBufferSize = 1*1024*1024;
 
     IEE_DataChannel_t[] Channel_list = {IEE_DataChannel_t.IED_AF3, IEE_DataChannel_t.IED_T7, IEE_DataChannel_t.IED_Pz,
             IEE_DataChannel_t.IED_T8, IEE_DataChannel_t.IED_AF4,IEE_DataChannel_t.IED_RAW_CQ,IEE_DataChannel_t.IED_COUNTER};
