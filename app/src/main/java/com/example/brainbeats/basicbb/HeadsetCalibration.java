@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.Toast;
 
 import com.emotiv.insight.IEmoStateDLL;
 import com.emotiv.insight.IEdk;
@@ -218,9 +219,15 @@ public class HeadsetCalibration extends Activity {
                                 }
                                 @Override
                                 public void onResponse(Call call, Response response) throws IOException {
-                                    System.out.println("REPONSE: " + response.message());
-                                    System.out.println("BODY: " + response.body().string());
-                                    //NOW MOVE FORWARD
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getApplicationContext(),
+                                                    "Calibration finished!", Toast.LENGTH_LONG).show();
+                                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                            startActivity(intent);
+                                        }
+                                    });
                                 }
                             });
                         }
