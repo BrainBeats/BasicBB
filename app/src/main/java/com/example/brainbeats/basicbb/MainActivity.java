@@ -1,5 +1,6 @@
 package com.example.brainbeats.basicbb;
 
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -13,9 +14,11 @@ import java.util.Random;
 import android.net.Uri;
 import android.content.ContentResolver;
 import android.database.Cursor;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.os.IBinder;
 import android.content.ComponentName;
@@ -24,7 +27,9 @@ import android.content.ServiceConnection;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.MediaController.MediaPlayerControl;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.brainbeats.basicbb.data.Tagger;
 import com.example.brainbeats.basicbb.settings.PreferenceWithHeaders;
@@ -43,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     private View currentPosition;
     public TextView stateDisplay;
     public TextView musicDisplay;
+    public TextView artistDisplay;
+    public LinearLayout layout;
 
 
     @Override
@@ -67,7 +74,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         setController();
         musicDisplay = (TextView) findViewById(R.id.musicDisplay);
         stateDisplay= (TextView) findViewById(R.id.stateDisplay);
-
+        artistDisplay= (TextView) findViewById(R.id.artistDisplay);
+        layout =(LinearLayout)findViewById(R.id.laylay);
         //Récupérer le tag de position qui lancera la bonne musique au toucher
         SongAdapter songAdt = new SongAdapter(this, songList);
         songView.setAdapter(songAdt);
@@ -116,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public void updateDisplay() {
         stateDisplay.setText(songList.get(musicSrv.getPosition()).getState());
         musicDisplay.setText(songList.get(musicSrv.getPosition()).getTitle());
+        artistDisplay.setText(songList.get(musicSrv.getPosition()).getArtist());
         System.out.println("display UPDATED");
     }
 
@@ -158,18 +167,23 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         switch (item.getItemId()) {
             case R.id.action_shuffle:
                 musicSrv.setShuffle();
+                toaster("Shuffle switched");
                 break;
             case R.id.brain_mode:
                 if(brainMode) {
                     brainMode=false;
                     musicSrv.setBrainMode();
+                    layout.setBackground(getResources().getDrawable(R.drawable.background_display));
                     item.setIcon(getResources().getDrawable(R.drawable.ic_bb_off_36dp));
                     Log.e("BRAINBEATS MODE","OFF");
+                    toaster("BrainMode OFF");
                 } else {
                     brainMode = true;
                     Log.e("BRAINBEATS MODE", "ON");
                     musicSrv.setBrainMode();
+                    layout.setBackground(getResources().getDrawable(R.drawable.background_display_on));
                     item.setIcon(getResources().getDrawable(R.drawable.ic_bb_on_36dp));
+                    toaster("BrainMode ON");
                 }
                 break;
             case R.id.headset:
@@ -252,6 +266,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     @Override
     public void start() {
         musicSrv.go();
+        toaster("Start Music");
         try {
             Thread.sleep(500,0);
         } catch (InterruptedException e) {
@@ -264,6 +279,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     public void pause() {
         playbackPaused=true;
         musicSrv.pausePlayer();
+        toaster("Pause");
     }
 
     @Override
@@ -319,6 +335,11 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
 
     //play next
     private void playNext(){
+        if (brainMode) {
+            toaster("Brain Record Start. Next song in 10s", true);
+        } else {
+            toaster("Next Song");
+        }
         musicSrv.playNext();
         if(playbackPaused){
             setController();
@@ -336,6 +357,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     //play previous
     private void playPrev(){
         musicSrv.playPrev();
+        toaster("Previous Song");
         if(playbackPaused){
             setController();
             playbackPaused=false;
@@ -348,4 +370,23 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
         updateDisplay();
     }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void toaster (String message) {
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+    private void toaster (final String message, boolean isLong) {
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+    }
+
+
 }

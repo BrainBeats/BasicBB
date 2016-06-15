@@ -12,21 +12,43 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:background="#5b215e">
+        android:layout_height="87dp"
+        android:background="@drawable/background_display"
+        android:layout_weight="0.18"
+        android:id="@+id/laylay">
 
-        <TextView
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:id="@+id/musicDisplay"
-            android:layout_marginRight="30dp"
-            android:text="---------"
-            android:textColor="#ffffff"
-            android:layout_marginLeft="14dp"
-            android:layout_gravity="bottom" />
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="3">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/musicDisplay"
+                android:layout_marginRight="30dp"
+                android:text="---------"
+                android:textColor="#ffffff"
+                android:layout_marginLeft="14dp"
+                android:layout_gravity="top"
+                android:layout_marginTop="5dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/artistDisplay"
+                android:layout_marginRight="30dp"
+                android:text="---------"
+                android:textColor="#f5ebf5"
+                android:layout_marginLeft="14dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="5dp"
+                android:textSize="15dp" />
+        </LinearLayout>
 
         <TextView
             android:layout_width="wrap_content"
@@ -34,8 +56,10 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:text="---------"
             android:id="@+id/stateDisplay"
-            android:layout_gravity="bottom|right"
-            android:textColor="#eed7ed" />
+            android:layout_gravity="center_vertical|right"
+            android:textColor="#faf4fa"
+            android:layout_weight="1"
+            android:textSize="18dp" />
 
     </LinearLayout>
 

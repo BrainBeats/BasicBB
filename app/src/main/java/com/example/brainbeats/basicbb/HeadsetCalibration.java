@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.Toast;
 
 import com.emotiv.insight.IEmoStateDLL;
 import com.emotiv.insight.IEdk;
@@ -30,22 +31,20 @@ import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import weka.classifiers.Classifier;
-import weka.classifiers.trees.J48;
-import weka.core.Instances;
-import weka.core.converters.ArffSaver;
-import weka.core.converters.CSVLoader;
-import weka.core.converters.ConverterUtils.DataSource;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 
 public class HeadsetCalibration extends Activity {
@@ -64,7 +63,6 @@ public class HeadsetCalibration extends Activity {
     Timer timer = new Timer();
 
     private int[] array;
-    private int[] array2;
 
     private String[] filenames = new String[MpQuantity];
     private BufferedWriter[] motion_writer = new BufferedWriter[MpQuantity];
@@ -73,20 +71,6 @@ public class HeadsetCalibration extends Activity {
     private static final int REQUEST_ENABLE_BT = 1;
 
     private BluetoothAdapter mBluetoothAdapter;
-
-    private HttpURLConnection connection = null;
-    private DataOutputStream outputStream = null;
-    private DataInputStream inputStream = null;
-    private String pathToOurFile = "/brainbeats/bandpowerValue_Hard.csv";
-    //private String urlServer = "http://brainbeats.cleverapps.io/models/hard";
-    private String urlServer = "http://localhost:8080/models/hard";
-    private String lineEnd = "\r\n";
-    private String twoHyphens = "--";
-    private String boundary =  "*****";
-
-    private int bytesRead, bytesAvailable, bufferSize;
-    private byte[] buffer;
-    private int maxBufferSize = 1*1024*1024;
 
     IEE_DataChannel_t[] Channel_list = {IEE_DataChannel_t.IED_AF3, IEE_DataChannel_t.IED_T7, IEE_DataChannel_t.IED_Pz,
             IEE_DataChannel_t.IED_T8, IEE_DataChannel_t.IED_AF4,IEE_DataChannel_t.IED_RAW_CQ,IEE_DataChannel_t.IED_COUNTER};
@@ -152,7 +136,6 @@ public class HeadsetCalibration extends Activity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-
                                 // task to be done every 20000 milliseconds
                                 time = showElapsedTime();
                                 PlayMv();
@@ -184,66 +167,74 @@ public class HeadsetCalibration extends Activity {
     }
 
     private void writeModel() throws Exception {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //Code exécuté dans le nouveau thread
-                try
-                {
-                    FileInputStream fileInputStream = new FileInputStream(new File("/storage/emulated/0/brainbeats/bandpowerValue_Hard.csv"));
-                    System.out.println("Start connection with Brainbeats server");
-                    URL url = new URL(urlServer);
-                    connection = (HttpURLConnection) url.openConnection();
+        try {
+            final String BASE_URL = "http://brainbeats.cleverapps.io/";
+            final OkHttpClient client = new OkHttpClient();
+            final File hardFile = new File("/storage/emulated/0/brainbeats/bandpowerValue_Hard.csv");
+            final File calmFile = new File("/storage/emulated/0/brainbeats/bandpowerValue_Calm.csv");
+            final Request hardRequest = createUploadfileRequest(hardFile, BASE_URL + "models/hard");
+            final Request calmRequest = createUploadfileRequest(calmFile, BASE_URL + "models/calm");
 
-                    // Allow Inputs &amp; Outputs.
-                    connection.setDoInput(true);
-                    connection.setDoOutput(true);
-                    connection.setUseCaches(false);
-
-                    // Set HTTP method to POST.
-                    connection.setRequestMethod("POST");
-
-                    connection.setRequestProperty("Connection", "Keep-Alive");
-                    connection.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
-
-                    outputStream = new DataOutputStream( connection.getOutputStream() );
-                    outputStream.writeBytes(twoHyphens + boundary + lineEnd);
-                    outputStream.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + pathToOurFile +"\"" + lineEnd);
-                    outputStream.writeBytes(lineEnd);
-
-                    bytesAvailable = fileInputStream.available();
-                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                    buffer = new byte[bufferSize];
-
-                    // Read file
-                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-                    while (bytesRead > 0)
-                    {
-                        outputStream.write(buffer, 0, bufferSize);
-                        bytesAvailable = fileInputStream.available();
-                        bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-                    }
-
-                    outputStream.writeBytes(lineEnd);
-                    outputStream.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-                    // Responses from the server (code and message)
-                    int serverResponseCode = connection.getResponseCode();
-                    String serverResponseMessage = connection.getResponseMessage();
-
-                    fileInputStream.close();
-                    outputStream.flush();
-                    outputStream.close();
-                    System.out.println("Transfer finished AND server answer is : "+serverResponseCode+"  "+serverResponseMessage);
+            client.newCall(hardRequest).enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
                 }
-                catch (Exception ex)
-                {
-                    System.out.println("ERROR MAGGLE");
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    System.out.println("HARD!");
+                    System.out.println(response.body().string());
+                    client.newCall(calmRequest).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            e.printStackTrace();
+                        }
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            System.out.println("CALM!");
+                            System.out.println(response.body().string());
+                            RequestBody reqbody = RequestBody.create(null, new byte[0]);
+                            Request.Builder formBody = new Request.Builder().url(BASE_URL + "models/build")
+                                    .method("POST",reqbody)
+                                    .header("Content-Length", "0");
+                            final Request request = formBody.build();
+                            client.newCall(request).enqueue(new Callback() {
+                                @Override
+                                public void onFailure(Call call, IOException e) {
+                                    e.printStackTrace();
+                                }
+                                @Override
+                                public void onResponse(Call call, Response response) throws IOException {
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getApplicationContext(),
+                                                    "Calibration finished!", Toast.LENGTH_LONG).show();
+                                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                            startActivity(intent);
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    });
                 }
-            }
-        }).start();
+            });
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private Request createUploadfileRequest(File file, String url) {
+        RequestBody body = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", file.getName(),
+                        RequestBody.create(MediaType.parse("text/csv"), file))
+                .build();
+        return new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
     }
 
     private void PlayMv() {
@@ -396,7 +387,6 @@ public class HeadsetCalibration extends Activity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
