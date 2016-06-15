@@ -113,10 +113,10 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         updateDisplay();
     }
 
-    public void updateDisplay(/*String aState, String aSong*/) {
+    public void updateDisplay() {
         stateDisplay.setText(songList.get(musicSrv.getPosition()).getState());
         musicDisplay.setText(songList.get(musicSrv.getPosition()).getTitle());
-        System.out.println("UPDATE");
+        System.out.println("display UPDATED");
     }
 
     public void getSongList() {
