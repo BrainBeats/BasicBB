@@ -2,7 +2,10 @@ package com.example.brainbeats.basicbb;
 
 
 import android.app.Service;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import java.util.ArrayList;
@@ -14,6 +17,9 @@ import android.os.PowerManager;
 import android.util.Log;
 
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import android.app.Notification;
 import android.app.PendingIntent;
 
@@ -37,6 +43,11 @@ public class MusicService extends Service implements
 
     //inner binder class
     private final IBinder musicBind = new MusicBinder();
+
+    private BrainmodeService BMSrv;
+    private Intent recordIntent;
+    Timer timer = new Timer();
+
 
 
     public void onCreate(){
@@ -106,6 +117,7 @@ public class MusicService extends Service implements
     public boolean onUnbind(Intent intent){
         player.stop();
         player.release();
+        stopService(recordIntent);
         return false;
     }
 
@@ -114,12 +126,15 @@ public class MusicService extends Service implements
         if(player.getCurrentPosition()>0){
             mp.reset();
             playNext();
+
         }
     }
 
     @Override
     public void onDestroy() {
         stopForeground(true);
+        stopService(recordIntent);
+
     }
 
     @Override
@@ -187,6 +202,9 @@ public class MusicService extends Service implements
     public void playNext(){
 
         if (brainMode) {
+
+           brainModeRecord();
+            Log.e("record done","");
             //TODO next in BrainMode
             String actualState = getString(R.string.state_calm); // for the moment. Then, will get it from the headset
             System.out.println("Looking for a " + actualState+" music :)");
@@ -201,6 +219,13 @@ public class MusicService extends Service implements
                 }
                 songPosn = newSong;
             }
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    playSong();
+                }
+            }, 10000);
+
         } else {
             if (shuffle) {
                 int newSong = songPosn;
@@ -212,8 +237,10 @@ public class MusicService extends Service implements
                 songPosn++;
                 if (songPosn >= songs.size()) songPosn = 0;
             }
+            playSong();
         }
-        playSong();
+
+
     }
 
     public void setShuffle(){
@@ -230,9 +257,47 @@ public class MusicService extends Service implements
     public void setBrainMode(){
         if(brainMode) {
             brainMode=false;
+
         } else {
             brainMode = true;
+            BMModestart();
         }
+    }
+
+    private void BMModestart() {
+        if (recordIntent == null) {
+            recordIntent = new Intent(this, BrainmodeService.class);
+            bindService(recordIntent, BMConnection, Context.BIND_AUTO_CREATE);
+            startService(recordIntent);
+        }
+    }
+
+    //connect to the BMservice
+    private ServiceConnection BMConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            BrainmodeService.BrainmodeBinder binder = (BrainmodeService.BrainmodeBinder)service;
+            //get service
+            BMSrv = binder.getService();
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            BMSrv.stopBrainMode();
+        }
+    };
+
+
+    private void brainModeRecord() {
+        BMSrv.startWrite();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                BMSrv.stopWrite();
+            }
+        }, 10000);
     }
 
     private ArrayList <Integer> stateFilter (ArrayList <Song> songs, String state) {

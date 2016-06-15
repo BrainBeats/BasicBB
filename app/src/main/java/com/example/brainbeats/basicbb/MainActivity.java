@@ -1,5 +1,6 @@
 package com.example.brainbeats.basicbb;
 
+import android.app.ActivityManager;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -163,6 +164,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
                     Log.e("BRAINBEATS MODE", "ON");
                     musicSrv.setBrainMode();
                     item.setIcon(getResources().getDrawable(R.drawable.ic_bb_on_36dp));
+
                 }
                 break;
             case R.id.headset:
@@ -322,5 +324,15 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             playbackPaused=false;
         }
         controller.show(0);
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

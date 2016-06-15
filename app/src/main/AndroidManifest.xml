@@ -39,6 +39,7 @@
             android:label="Headset Calibration">
         </activity>
         <service android:name="com.example.brainbeats.basicbb.MusicService"/>
+        <service android:name="com.example.brainbeats.basicbb.BrainmodeService"/>
 
         <activity
             android:name="com.example.brainbeats.basicbb.settings.PreferenceWithHeaders"
