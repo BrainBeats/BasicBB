@@ -1,7 +1,10 @@
 package com.example.brainbeats.basicbb;
 
 import android.app.ActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
@@ -91,6 +94,13 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         }
     }
 
+    private BroadcastReceiver updateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateDisplay();
+        }
+    };
+
     //connect to the service
     private ServiceConnection musicConnection = new ServiceConnection(){
 
@@ -118,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             playbackPaused=false;
         }
         controller.show(0);
-        updateDisplay();
     }
 
     public void updateDisplay() {
@@ -216,6 +225,7 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
     @Override
     protected void onPause(){
         super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
         paused=true;
     }
 
@@ -226,6 +236,8 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
             setController();
             paused=false;
         }
+        LocalBroadcastManager.getInstance(this).registerReceiver(updateReceiver,
+                new IntentFilter("update"));
     }
 
     @Override
@@ -350,7 +362,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        updateDisplay();
     }
 
     //play previous
@@ -367,7 +378,6 @@ public class MainActivity extends AppCompatActivity implements MediaPlayerContro
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        updateDisplay();
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {

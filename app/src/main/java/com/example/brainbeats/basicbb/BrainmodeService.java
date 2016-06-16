@@ -213,8 +213,8 @@ public class BrainmodeService extends Service {
         setDataFile();
         isEnableWriteFile = true;
     }
-    public void stopWrite(){StopWriteFile();}
 
+    public void stopWrite(){StopWriteFile();}
 
     public class BrainmodeBinder extends Binder {
         BrainmodeService getService() {
@@ -236,5 +236,6 @@ public class BrainmodeService extends Service {
     @Override
     public void onDestroy() {
         stopForeground(true);
+        stopSelf();
     }
 }

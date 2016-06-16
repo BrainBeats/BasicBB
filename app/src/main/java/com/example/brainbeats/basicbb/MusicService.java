@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.media.MediaPlayer;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 
@@ -19,6 +20,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Message;
 import android.os.PowerManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.util.Random;
@@ -68,13 +70,17 @@ public class MusicService extends Service implements
         //initialize position
         songPosn=0;
         //create player
-
         player = new MediaPlayer();
 
         rand=new Random();
         initMusicPlayer();
     }
 
+    public void callUpdateInMain() {
+        Intent intent = new Intent("update");
+        intent.putExtra("message", "update");
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
 
 
     public void setList(ArrayList<Song> theSongs){
@@ -115,6 +121,7 @@ public class MusicService extends Service implements
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
         player.prepareAsync();
+        callUpdateInMain();
     }
 
     @Override
@@ -290,13 +297,7 @@ public class MusicService extends Service implements
         }
     }
 
-   /* @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return super.onStartCommand(intent, flags, startId);
-        intent.getExtras()
-    }*/
-
-    //connect to the BMservice        playSong()
+    //connect to the BMservice
     private ServiceConnection BMConnection = new ServiceConnection(){
 
         @Override

@@ -170,7 +170,7 @@ public class HeadsetCalibration extends Activity {
         try {
             final String BASE_URL = "http://brainbeats.cleverapps.io/";
             final OkHttpClient client = new OkHttpClient();
-            final File hardFile = new File("/storage/emulated/0/brainbeats/bandpowerValue_Hard.csv");
+            final File hardFile = new File("/storage/emulated/0/brainbeats/bandpowerValue_Excited.csv");
             final File calmFile = new File("/storage/emulated/0/brainbeats/bandpowerValue_Calm.csv");
             final Request hardRequest = createUploadfileRequest(hardFile, BASE_URL + "models/hard");
             final Request calmRequest = createUploadfileRequest(calmFile, BASE_URL + "models/calm");
@@ -209,7 +209,7 @@ public class HeadsetCalibration extends Activity {
                                         @Override
                                         public void run() {
                                             Toast.makeText(getApplicationContext(),
-                                                    "Calibration finished!", Toast.LENGTH_LONG).show();
+                                                    "Models created -> Calibration finished!", Toast.LENGTH_LONG).show();
                                             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                             startActivity(intent);
                                         }
@@ -267,7 +267,7 @@ public class HeadsetCalibration extends Activity {
         filenames[2] = "_Neutre";
         filenames[0] = "_Neutre";
         filenames[1]="_Calm";
-        filenames[3]="_Hard";
+        filenames[3]="_Excited";
     }
 
     private void setDataFile() {
@@ -398,4 +398,10 @@ public class HeadsetCalibration extends Activity {
     public void onStop() {
         super.onStop();
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
 }
