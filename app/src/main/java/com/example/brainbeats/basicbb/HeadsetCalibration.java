@@ -17,6 +17,8 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.Toast;
@@ -26,6 +28,7 @@ import com.emotiv.insight.IEdk;
 import com.emotiv.insight.IEdk.IEE_DataChannel_t;
 import com.emotiv.insight.IEdk.IEE_Event_t;
 import com.emotiv.insight.IEdkErrorCode;
+
 
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -75,6 +78,9 @@ public class HeadsetCalibration extends Activity {
     IEE_DataChannel_t[] Channel_list = {IEE_DataChannel_t.IED_AF3, IEE_DataChannel_t.IED_T7, IEE_DataChannel_t.IED_Pz,
             IEE_DataChannel_t.IED_T8, IEE_DataChannel_t.IED_AF4,IEE_DataChannel_t.IED_RAW_CQ,IEE_DataChannel_t.IED_COUNTER};
     String[] Name_Channel = {"AF3", "T7", "Pz", "T8", "AF4"};
+    private Animation an = new RotateAnimation(0.0f, 360.0f, Animation.RELATIVE_TO_SELF, 0.5f,Animation.RELATIVE_TO_SELF,0.5f);
+    private Animation anBut = new RotateAnimation(360.0f, 0.0f,Animation.RELATIVE_TO_SELF, 0.5f,Animation.RELATIVE_TO_SELF,0.5f);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,6 +126,23 @@ public class HeadsetCalibration extends Activity {
 
             @Override
             public void onClick(View arg0) {
+
+                // Set the animation's parameters
+                an.setDuration(20000);               // duration in ms
+                an.setRepeatCount(-1);                // -1 = infinite repeated
+                an.setRepeatMode(Animation.INFINITE);
+                an.setFillAfter(true);
+
+                // Set the animation's parameters
+                anBut.setDuration(20000);               // duration in ms
+                anBut.setRepeatCount(-1);                // -1 = infinite repeated
+                anBut.setRepeatMode(Animation.REVERSE);
+                anBut.setFillAfter(true);
+
+
+                findViewById(R.id.layBack).setAnimation(an);
+                findViewById(R.id.logobutton).setAnimation(anBut);
+
                 mpNeutre = MediaPlayer.create(arg0.getContext(), R.raw.punk);
                 mpHard = MediaPlayer.create(arg0.getContext(), R.raw.hard);
                 mpCalm = MediaPlayer.create(arg0.getContext(), R.raw.calm);
@@ -143,7 +166,7 @@ public class HeadsetCalibration extends Activity {
                             }
                         });
                     }
-                }, 0, 10000);
+                }, 0, 25000);
             }
         });
 
@@ -368,6 +391,8 @@ public class HeadsetCalibration extends Activity {
                 chronometer.stop();
                 mpCalm.stop();
                 mpHard.stop();
+                anBut.cancel();
+                an.cancel();
             }
         } catch (Exception e) {
             e.printStackTrace();

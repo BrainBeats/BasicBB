@@ -30,4 +30,5 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.3.1'
     compile files('libs/bedk.jar')
     compile files('libs/jna.jar')
+    compile 'com.github.hujiaweibujidao:wava:1.0.0'
 }
